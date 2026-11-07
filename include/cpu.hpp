@@ -1,10 +1,9 @@
 #ifndef CPU_H
 #define CPU_H
 
-class cpu {
+class Cpu {
 private:
 public:
-    void print();
 };
 
 #endif
