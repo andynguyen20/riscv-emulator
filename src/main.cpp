@@ -11,9 +11,6 @@ int main(int argc, char* argv[])
         }
         Cpu cpu(argv[1]);
         cpu.run();
-        sign_extend_11_bit_immediate(0xFFF);
-        sign_extend_12_bit_immediate(0x1FFF);
-        sign_extend_20_bit_immediate(0x1FFFFF);
     }
     catch (const std::runtime_error& e) {
         std::cerr << "Error: " << e.what() << '\n';
