@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Iinclude
+CXXFLAGS = -std=c++20 -Wall -Wextra -Wpedantic -Iinclude 
 
 SRC = $(wildcard src/*.cpp)
 OBJ = $(patsubst src/%.cpp,build/%.o,$(SRC))
@@ -16,7 +16,7 @@ build/%.o: src/%.cpp | build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 build:
-	mkdir build
+	mkdir -p build
 
 clean:
-	if exist build rmdir /S /Q build
+	rm -rf build

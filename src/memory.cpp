@@ -1,4 +1,4 @@
-#include "mem.hpp"
+#include "memory.hpp"
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -37,4 +37,9 @@ void Memory::print_instruction_memory()
         
         std::cout << std::bitset<32>(instruction) << '\n';
     }
+}
+
+std::uint32_t Memory::operator[](std::uint32_t index)
+{
+    return RAM[index];
 }
