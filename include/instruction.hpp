@@ -1,3 +1,6 @@
+#ifndef INSTR_H
+#define INSTR_H
+
 #include <cstdint>
 
 struct Instruction {
@@ -13,3 +16,4 @@ public:
     void print_instruction_members();
 };
 
+#endif
