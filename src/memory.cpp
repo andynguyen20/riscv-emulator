@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include <bitset>
+#include <format>
 
 Memory::Memory(std::string bin_path)
 {
@@ -35,11 +35,14 @@ void Memory::print_instruction_memory()
             static_cast<std::uint32_t>(RAM[i + 2] << 16) |
             static_cast<std::uint32_t>(RAM[i + 3] << 24); 
         
-        std::cout << std::bitset<32>(instruction) << '\n';
+        std::cout << std::format("{:b}\n", instruction);
     }
 }
 
 std::uint32_t Memory::operator[](std::uint32_t index)
 {
-    return RAM[index];
+    return static_cast<std::uint32_t>(RAM[index])
+        | (static_cast<std::uint32_t>(RAM[index + 1]) << 8)
+        | (static_cast<std::uint32_t>(RAM[index + 2]) << 16)
+        | (static_cast<std::uint32_t>(RAM[index + 3]) << 24);
 }

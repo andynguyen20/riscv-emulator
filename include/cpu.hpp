@@ -3,6 +3,7 @@
 
 #include "memory.hpp"
 #include "register_file.hpp"
+#include "instruction.hpp"
 #include <string>
 #include <cstdint>
 
@@ -18,7 +19,7 @@ public:
     void step();
     void run();
     std::uint32_t fetch_instruction();
-    
+    Instruction decode_instruction(const std::uint32_t instruction);
 };
 
 #endif
