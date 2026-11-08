@@ -21,6 +21,7 @@ private:
     std::array<std::uint8_t, MemoryMap::RAM_SIZE> RAM{};
 public:
     Memory(std::string bin_path);
+    void print_instruction_memory();
 };
 
 
