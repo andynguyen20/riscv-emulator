@@ -1,5 +1,6 @@
 #include "cpu.hpp"
 #include "bit_utils.hpp"
+#include "memory.hpp"
 #include <iostream>
 #include <format>
 #include <stdexcept>
@@ -20,6 +21,8 @@ void Cpu::step()
 
     Instruction instr = decode_instruction(instruction);
 
+    execute_instruction(instr);
+
     cycles++;
 
 }
@@ -33,7 +36,7 @@ void Cpu::run()
 
 std::uint32_t Cpu::fetch_instruction()
 {  
-    const std::uint32_t instruction = memory[pc];
+    const std::uint32_t instruction = memory.data_read(pc);
     std::cout << std::format("CPU::fetch_instruction(): pc: {:x} | instruction: {:b}\n", pc, instruction);
     pc += 4;
     return instruction;
@@ -112,4 +115,114 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             break;
     }
     return instr;
+}
+
+void Cpu::execute_instruction(const Instruction& instruction)
+{
+    std::uint32_t rd = 0;
+    std::uint32_t rd_a = instruction.destination_register;
+    std::uint32_t rs1 = rf.register_read(instruction.source_register_1);
+    std::uint32_t rs2 = rf.register_read(instruction.source_register_2);
+    std::uint32_t imm = instruction.immediate;
+    switch (instruction.opcode) {
+        case 0b0110011: {
+            switch (instruction.funct_3) {
+                case 0x0: {
+                    if (instruction.funct_7 == 0x00) {
+                        rd = rs1 + rs2;
+                        rf.register_write(rd_a, rd);
+                        std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " + rs2: " << rs2 << '\n';
+                    }
+                    if (instruction.funct_7 == 0x20) {
+                        rd = rs1 - rs2;
+                        rf.register_write(rd_a, rd);
+                        std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " - rs2: " << rs2 << '\n';
+                    }
+                    break;
+                }
+                case 0x6: {
+                    rd = rs1 | rs2;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " | rs2: " << rs2 << '\n';
+                    break;
+                }
+                case 0x7: {
+                    rd = rs1 & rs2;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " & rs2: " << rs2 << '\n';
+                    break;
+                }
+                case 0x2: {
+                    rd = (rs1 < rs2) ? 1 : 0;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = (rs1: " << rs1 << " < rs2: " << rs2 << ") ? 1 : 0\n";
+                    break;
+                }
+            }
+            break;
+        }
+        case 0b0010011: {
+            switch (instruction.funct_3) {
+                case 0x0: {
+                    rd = rs1 + imm;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = (rs1: " << rs1 << " + imm: " << imm << '\n';
+                    break;
+                }
+            }
+            break;
+        }
+        case 0b0000011: {
+            switch (instruction.funct_3) {
+                case 0x2: {
+                    rd = memory.data_read(MemoryMap::DATA_START + rs1 + imm);
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:31]\n";
+                    break;
+                }
+            }
+            break;
+        }
+        case 0b0100011: {
+            switch (instruction.funct_3) {
+                case 0x2: {
+                    memory.data_write(rs1 + imm, rs2);
+                    std::cout << "Cpu::execute_instruction: M[rs1: " << rs1 << " + imm: " << imm << "[0:31] = rs2: " << rs2 << "[0:31]\n";
+                    break;
+                }
+            }
+            break;
+        }
+        case 0b1100011: {
+            switch (instruction.funct_3) {
+                case 0x0: {
+                    if (rs1 == rs2) {
+                        pc = pc - 4 + imm;
+                        std::cout << "Cpu::execute_instruction: if (rs1: " << rs1 << " == rs2: " << rs1 << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: rs1: " << rs1 << " != rs2: " << rs1 << " PC += 0\n";
+                    break;
+                }
+            }
+            break;
+        }
+        case 0b1101111: {
+            rd = pc;
+            rf.register_write(rd_a, rd);
+            pc = pc - 4 + imm;
+            std::cout << "Cpu::execute_instruction: rd: " << rd << " = pc: " << pc << " + 4; pc: " << pc << "+= imm: " << imm << '\n';
+            break;
+        }
+        default: {
+            std::cout << "Cpu::execute_instruction: Invalid opcode\n";
+            break;
+        }
+    }
+}
+
+void Cpu::print_data_debug(std::uint32_t index)
+{
+    std::uint32_t value = memory.data_read(MemoryMap::DATA_START + index);
+    std::cout << "Cpu::print_memory_debug: M[" << index << "] = " << value << '\n';
 }

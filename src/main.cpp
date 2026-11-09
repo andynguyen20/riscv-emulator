@@ -11,6 +11,7 @@ int main(int argc, char* argv[])
         }
         Cpu cpu(argv[1]);
         cpu.run();
+        cpu.print_data_debug(100);
     }
     catch (const std::runtime_error& e) {
         std::cerr << "Error: " << e.what() << '\n';

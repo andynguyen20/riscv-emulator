@@ -22,7 +22,8 @@ private:
 public:
     explicit Memory(std::string bin_path);
     void print_instruction_memory();
-    std::uint32_t operator[](std::uint32_t index);
+    std::uint32_t data_read(std::uint32_t index);
+    void data_write(std::uint32_t index, std::uint32_t data);
 };
 
 

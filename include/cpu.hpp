@@ -20,6 +20,8 @@ public:
     void run();
     std::uint32_t fetch_instruction();
     Instruction decode_instruction(const std::uint32_t instruction);
+    void execute_instruction(const Instruction& instruction);
+    void print_data_debug(std::uint32_t index);
 };
 
 #endif
