@@ -23,6 +23,9 @@ void Cpu::step()
 
     execute_instruction(instr);
 
+    pc = pc_next;
+    pc_next = pc + 4;
+
     cycles++;
 
 }
@@ -38,7 +41,6 @@ std::uint32_t Cpu::fetch_instruction()
 {  
     const std::uint32_t instruction = memory.data_read(pc);
     std::cout << std::format("CPU::fetch_instruction(): pc: {:x} | instruction: {:b}\n", pc, instruction);
-    pc += 4;
     return instruction;
 }
 
@@ -197,7 +199,7 @@ void Cpu::execute_instruction(const Instruction& instruction)
             switch (instruction.funct_3) {
                 case 0x0: {
                     if (rs1 == rs2) {
-                        pc = pc - 4 + imm;
+                        pc_next = pc + imm;
                         std::cout << "Cpu::execute_instruction: if (rs1: " << rs1 << " == rs2: " << rs1 << ") PC += imm: " << imm << "\n";
                         break;
                     }
@@ -208,9 +210,9 @@ void Cpu::execute_instruction(const Instruction& instruction)
             break;
         }
         case 0b1101111: {
-            rd = pc;
+            rd = pc + 4;
             rf.register_write(rd_a, rd);
-            pc = pc - 4 + imm;
+            pc_next = pc + imm;
             std::cout << "Cpu::execute_instruction: rd: " << rd << " = pc: " << pc << " + 4; pc: " << pc << "+= imm: " << imm << '\n';
             break;
         }

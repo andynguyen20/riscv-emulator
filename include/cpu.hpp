@@ -12,6 +12,7 @@ private:
     Memory memory;
     RegisterFile rf;
     std::uint32_t pc = 0;
+    std::uint32_t pc_next = pc + 4;
     std::uint64_t cycles = 0;
     bool halted = false;
 public:
