@@ -134,13 +134,14 @@ void Cpu::execute_instruction(const Instruction& instruction)
                         rd = rs1 + rs2;
                         rf.register_write(rd_a, rd);
                         std::cout << "Cpu::execute_instruction: ADD | rd: " << rd << " = rs1: " << rs1 << " + rs2: " << rs2 << '\n';
+                        break;
                     }
                     if (instruction.funct_7 == 0x20) { // SUB
                         rd = rs1 - rs2;
                         rf.register_write(rd_a, rd);
                         std::cout << "Cpu::execute_instruction: SUB | rd: " << rd << " = rs1: " << rs1 << " - rs2: " << rs2 << '\n';
+                        break;
                     }
-                    break;
                 }
                 case 0x4: { // XOR
                     rd = rs1 ^ rs2;
@@ -161,23 +162,24 @@ void Cpu::execute_instruction(const Instruction& instruction)
                     break;
                 }
                 case 0x1: { // Shift Left Logical
-                    rd = rs1 << rs2;
+                    rd = rs1 << (rs2 & 0x1F);
                     rf.register_write(rd_a, rd);
                     std::cout << "Cpu::execute_instruction: Shift Left Logical | rd: " << rd << " = rs1: " << rs1 << " << rs2: " << rs2 << '\n';
                     break;
                 }
                 case 0x5: {
                     if (instruction.funct_7 == 0x00) { // Shift Right Logical
-                        rd = rs1 >> rs2;
+                        rd = rs1 >> (rs2 & 0x1F);
                         rf.register_write(rd_a, rd);
                         std::cout << "Cpu::execute_instruction: Shift Right Logical | rd: " << rd << " = rs1: " << rs1 << " >> rs2: " << rs2 << '\n';
+                        break;
                     }
                     if (instruction.funct_7 == 0x20) { // Shift Left Arith*
                         rd = static_cast<std::uint32_t>((static_cast<std::int32_t>(rs1) >> (rs2 & 0x1F)));
                         rf.register_write(rd_a, rd);
                         std::cout << "Cpu::execute_instruction: Shift Right Arith* | rd: " << rd << " = rs1: " << rs1 << " >> rs2: " << rs2 << '\n';
+                        break;
                     }
-                    break;
                 }
                 case 0x2: { // Set Less Than
                     rd = (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(rs2)) ? 1 : 0;
@@ -196,10 +198,60 @@ void Cpu::execute_instruction(const Instruction& instruction)
         }
         case 0b0010011: {
             switch (instruction.funct_3) {
-                case 0x0: {
+                case 0x0: { // ADD Immediate
                     rd = rs1 + imm;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = (rs1: " << rs1 << " + imm: " << imm << '\n';
+                    std::cout << "Cpu::execute_instruction: ADD Immediate | rd: " << rd << " = rs1: " << rs1 << " + imm: " << imm << '\n';
+                    break;
+                }
+                case 0x4: { // XOR Immediate
+                    rd = rs1 ^ imm;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: XOR Immediate | rd: " << rd << " = rs1: " << rs1 << " ^ imm: " << imm << '\n';
+                    break;
+                }
+                case 0x6: { // OR Immediate
+                    rd = rs1 | imm;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: OR Immediate | rd: " << rd << " = rs1: " << rs1 << " | imm: " << imm << '\n';
+                    break;
+                }
+                case 0x7: { // AND Immediate
+                    rd = rs1 & imm;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: AND Immediate | rd: " << rd << " = rs1: " << rs1 << " & imm: " << imm << '\n';
+                    break;
+                }
+                case 0x1: { // Shift Left Logical Immediate
+                    rd = rs1 << (imm & 0x1F);
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Shift Right Logical Immediate | rd: " << rd << " = rs1: " << rs1 << " << imm: " << imm << '\n';
+                    break;
+                }
+                case 0x5: { 
+                    if (instruction.funct_7 == 0x00) {// Shift Right Logical Immediate
+                    rd = rs1 >> (imm & 0x1F);
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Shift Right Logical Immediate | rd: " << rd << " = rs1: " << rs1 << " >> imm: " << imm << '\n';
+                    break;
+                    }
+                    if (instruction.funct_7 == 0x20) {// Shift Right Arithmetic Immediate
+                    rd = static_cast<std::uint32_t>(static_cast<std::int32_t>(rs1) >> (imm & 0x1F));
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Shift Right Arithmetic Immediate | rd: " << rd << " = rs1: " << rs1 << " >> imm: " << imm << '\n';
+                    break;
+                    }
+                }
+                case 0x2: { // Set Less Than Imm
+                    rd = (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(imm)) ? 1 : 0;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Set Less Than Imm | rd: " << rd << " = (rs1: " << rs1 << " < imm: " << imm << ") ? 1 : 0\n";
+                    break;
+                }
+                case 0x3: { //Set Less Than Imm (U)
+                    rd = rs1 < imm ? 1 : 0;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Set Less Than Imm (U) | rd: " << rd << " = (rs1: " << rs1 << " < imm: " << imm << ") ? 1 : 0\n";
                     break;
                 }
             }
