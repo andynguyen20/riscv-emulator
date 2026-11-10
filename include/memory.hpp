@@ -19,11 +19,13 @@ namespace MemoryMap {
 class Memory {
 private:
     std::array<std::uint8_t, MemoryMap::RAM_SIZE> RAM{};
+    std::uint64_t instruction_count = 0;
 public:
     explicit Memory(std::string bin_path);
     void print_instruction_memory();
     std::uint32_t data_read(std::uint32_t index);
     void data_write(std::uint32_t index, std::uint32_t data);
+    std::uint64_t return_instruction_count();
 };
 
 

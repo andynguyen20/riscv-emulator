@@ -32,7 +32,7 @@ void Cpu::step()
 
 void Cpu::run() 
 {
-    while (!halted && cycles < 21) {
+    while (!halted && cycles < memory.return_instruction_count()) {
         step();
     }
 }
@@ -57,7 +57,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.funct_3 = static_cast<std::uint8_t>((instruction & 0x00007000) >> 12);
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0x00000F80) >> 7);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (R-type instruction)\n";
             break;
         }
@@ -68,7 +68,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.funct_3 = static_cast<std::uint8_t>((instruction & 0x00007000) >> 12);
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0x00000F80) >> 7);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (I-type instruction)\n";
             break;
         }
@@ -79,7 +79,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.source_register_1 = static_cast<std::uint8_t>((instruction & 0xF8000) >> 15);
             instr.funct_3 = static_cast<std::uint8_t>((instruction & 0x7000) >> 12);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (S-type instruction)\n";
             break;
         }
@@ -90,7 +90,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.source_register_1 = static_cast<std::uint8_t>((instruction & 0xF8000) >> 15);
             instr.funct_3 = static_cast<std::uint8_t>((instruction & 0x7000) >> 12);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (B-type instruction)\n";
             break;
         }
@@ -99,7 +99,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.immediate = imm;
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0xF80) >> 7);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (J-type instruction)\n";
             break;
         }
@@ -108,7 +108,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
             instr.immediate = sign_extend_20_bit_immediate(imm);
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0xF80) >> 7);
             instr.opcode = opcode;
-            instr.print_instruction_members();
+            //instr.print_instruction_members();
             std::cout << "Cpu::decode_instruction: Instruction decoded (U-type instruction)\n";
             break;
         }
@@ -129,35 +129,66 @@ void Cpu::execute_instruction(const Instruction& instruction)
     switch (instruction.opcode) {
         case 0b0110011: {
             switch (instruction.funct_3) {
-                case 0x0: {
-                    if (instruction.funct_7 == 0x00) {
+                case 0x0: { 
+                    if (instruction.funct_7 == 0x00) { // ADD
                         rd = rs1 + rs2;
                         rf.register_write(rd_a, rd);
-                        std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " + rs2: " << rs2 << '\n';
+                        std::cout << "Cpu::execute_instruction: ADD | rd: " << rd << " = rs1: " << rs1 << " + rs2: " << rs2 << '\n';
                     }
-                    if (instruction.funct_7 == 0x20) {
+                    if (instruction.funct_7 == 0x20) { // SUB
                         rd = rs1 - rs2;
                         rf.register_write(rd_a, rd);
-                        std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " - rs2: " << rs2 << '\n';
+                        std::cout << "Cpu::execute_instruction: SUB | rd: " << rd << " = rs1: " << rs1 << " - rs2: " << rs2 << '\n';
                     }
                     break;
                 }
-                case 0x6: {
+                case 0x4: { // XOR
+                    rd = rs1 ^ rs2;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: XOR | rd: " << rd << " = rs1: " << rs1 << " ^ rs2: " << rs2 << '\n';
+                    break;
+                }
+                case 0x6: { // OR
                     rd = rs1 | rs2;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " | rs2: " << rs2 << '\n';
+                    std::cout << "Cpu::execute_instruction: OR | rd: " << rd << " = rs1: " << rs1 << " | rs2: " << rs2 << '\n';
                     break;
                 }
-                case 0x7: {
+                case 0x7: { // AND
                     rd = rs1 & rs2;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = rs1: " << rs1 << " & rs2: " << rs2 << '\n';
+                    std::cout << "Cpu::execute_instruction: AND | rd: " << rd << " = rs1: " << rs1 << " & rs2: " << rs2 << '\n';
                     break;
                 }
-                case 0x2: {
-                    rd = (rs1 < rs2) ? 1 : 0;
+                case 0x1: { // Shift Left Logical
+                    rd = rs1 << rs2;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = (rs1: " << rs1 << " < rs2: " << rs2 << ") ? 1 : 0\n";
+                    std::cout << "Cpu::execute_instruction: Shift Left Logical | rd: " << rd << " = rs1: " << rs1 << " << rs2: " << rs2 << '\n';
+                    break;
+                }
+                case 0x5: {
+                    if (instruction.funct_7 == 0x00) { // Shift Right Logical
+                        rd = rs1 >> rs2;
+                        rf.register_write(rd_a, rd);
+                        std::cout << "Cpu::execute_instruction: Shift Right Logical | rd: " << rd << " = rs1: " << rs1 << " >> rs2: " << rs2 << '\n';
+                    }
+                    if (instruction.funct_7 == 0x20) { // Shift Left Arith*
+                        rd = static_cast<std::uint32_t>((static_cast<std::int32_t>(rs1) >> (rs2 & 0x1F)));
+                        rf.register_write(rd_a, rd);
+                        std::cout << "Cpu::execute_instruction: Shift Right Arith* | rd: " << rd << " = rs1: " << rs1 << " >> rs2: " << rs2 << '\n';
+                    }
+                    break;
+                }
+                case 0x2: { // Set Less Than
+                    rd = (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(rs2)) ? 1 : 0;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Set Less Than | rd: " << rd << " = (rs1: " << rs1 << " < rs2: " << rs2 << ") ? 1 : 0\n";
+                    break;
+                }
+                case 0x3: { //Set Less Than (U)
+                    rd = rs1 < rs2 ? 1 : 0;
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Set Less Than (U) | rd: " << rd << " = (rs1: " << rs1 << " < rs2: " << rs2 << ") ? 1 : 0\n";
                     break;
                 }
             }

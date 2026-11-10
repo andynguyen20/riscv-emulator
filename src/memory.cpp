@@ -14,6 +14,7 @@ Memory::Memory(std::string bin_path)
 
     std::size_t address = 0;
     std::array<uint8_t, 4> bytes{};
+    std::uint64_t line_count = 0;
 
     while (ifs.read(reinterpret_cast<char*>(bytes.data()), bytes.size())) {
         if (address + bytes.size() > MemoryMap::INSTR_END) {
@@ -23,7 +24,9 @@ Memory::Memory(std::string bin_path)
         RAM[address++] = bytes[2];
         RAM[address++] = bytes[1];
         RAM[address++] = bytes[0];
+        line_count++;
     } 
+    instruction_count = line_count;
 }
 
 void Memory::print_instruction_memory()
@@ -58,4 +61,9 @@ void Memory::data_write(std::uint32_t index, std::uint32_t data)
     RAM[MemoryMap::DATA_START + index + 1] = byte_1;
     RAM[MemoryMap::DATA_START + index + 2] = byte_2;
     RAM[MemoryMap::DATA_START + index + 3] = byte_3;
+}
+
+std::uint64_t Memory::return_instruction_count()
+{
+    return instruction_count;
 }
