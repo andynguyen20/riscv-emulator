@@ -177,14 +177,14 @@ void Cpu::execute_instruction(const Instruction& instruction)
                     if (instruction.funct_7 == 0x20) { // Shift Left Arith*
                         rd = static_cast<std::uint32_t>((static_cast<std::int32_t>(rs1) >> (rs2 & 0x1F)));
                         rf.register_write(rd_a, rd);
-                        std::cout << "Cpu::execute_instruction: Shift Right Arith* | rd: " << rd << " = rs1: " << rs1 << " >> rs2: " << rs2 << '\n';
+                        std::cout << "Cpu::execute_instruction: Shift Right Arith* | rd: " << static_cast<std::int32_t>(rd) << " = rs1: " << static_cast<std::int32_t>(rs1) << " >> rs2: " << rs2 << '\n';
                         break;
                     }
                 }
                 case 0x2: { // Set Less Than
                     rd = (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(rs2)) ? 1 : 0;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: Set Less Than | rd: " << rd << " = (rs1: " << rs1 << " < rs2: " << rs2 << ") ? 1 : 0\n";
+                    std::cout << "Cpu::execute_instruction: Set Less Than | rd: " << rd << " = (rs1: " << static_cast<std::int32_t>(rs1) << " < rs2: " << static_cast<std::int32_t>(rs2) << ") ? 1 : 0\n";
                     break;
                 }
                 case 0x3: { //Set Less Than (U)
@@ -238,14 +238,14 @@ void Cpu::execute_instruction(const Instruction& instruction)
                     if (instruction.funct_7 == 0x20) {// Shift Right Arithmetic Immediate
                     rd = static_cast<std::uint32_t>(static_cast<std::int32_t>(rs1) >> (imm & 0x1F));
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: Shift Right Arithmetic Immediate | rd: " << rd << " = rs1: " << rs1 << " >> imm: " << imm << '\n';
+                    std::cout << "Cpu::execute_instruction: Shift Right Arithmetic Immediate | rd: " << static_cast<std::int32_t>(rd) << " = rs1: " << static_cast<std::int32_t>(rs1) << " >> imm: " << imm << '\n';
                     break;
                     }
                 }
                 case 0x2: { // Set Less Than Imm
                     rd = (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(imm)) ? 1 : 0;
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: Set Less Than Imm | rd: " << rd << " = (rs1: " << rs1 << " < imm: " << imm << ") ? 1 : 0\n";
+                    std::cout << "Cpu::execute_instruction: Set Less Than Imm | rd: " << rd << " = (rs1: " << static_cast<std::int32_t>(rs1) << " < imm: " << static_cast<std::int32_t>(imm) << ") ? 1 : 0\n";
                     break;
                 }
                 case 0x3: { //Set Less Than Imm (U)
@@ -262,13 +262,13 @@ void Cpu::execute_instruction(const Instruction& instruction)
                 case 0x0: { // Load Byte
                     rd = static_cast<std::uint32_t>(static_cast<std::int8_t>(memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFF));
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: Load Byte | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:7]\n";
+                    std::cout << "Cpu::execute_instruction: Load Byte | rd: " << rd << " = M[rs1: " << static_cast<std::int32_t>(rs1) << " + imm: " << imm << "][0:7]\n";
                     break;
                 }
                 case 0x1: { // Load Half
                     rd = static_cast<std::uint32_t>(static_cast<std::int16_t>(memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFFFF));
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: Load Half | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:15]\n";
+                    std::cout << "Cpu::execute_instruction: Load Half | rd: " << rd << " = M[rs1: " << static_cast<std::int32_t>(rs1) << " + imm: " << imm << "][0:15]\n";
                     break;
                 }
                 case 0x2: { // Load Word
@@ -314,13 +314,58 @@ void Cpu::execute_instruction(const Instruction& instruction)
         }
         case 0b1100011: {
             switch (instruction.funct_3) {
-                case 0x0: {
-                    if (rs1 == rs2) {
+                case 0x0: { // Branch ==
+                    if (rs1 == rs2) { 
                         pc_next = pc + imm;
-                        std::cout << "Cpu::execute_instruction: if (rs1: " << rs1 << " == rs2: " << rs1 << ") PC += imm: " << imm << "\n";
+                        std::cout << "Cpu::execute_instruction: Branch == | if (rs1: " << rs1 << " == rs2: " << rs2 << ") PC += imm: " << imm << "\n";
                         break;
                     }
-                    std::cout << "Cpu::execute_instruction: rs1: " << rs1 << " != rs2: " << rs1 << " PC += 0\n";
+                    std::cout << "Cpu::execute_instruction: Branch == | rs1: " << rs1 << " != rs2: " << rs2 << " PC += 0\n";
+                    break;
+                }
+                case 0x1: { // Branch !=
+                    if (rs1 != rs2) {
+                        pc_next = pc + imm;
+                        std::cout << "Cpu::execute_instruction: Branch != | if (rs1: " << rs1 << " != rs2: " << rs2 << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: Branch != | rs1: " << rs1 << " == rs2: " << rs2 << " PC += 0\n";
+                    break;
+                }
+                case 0x4: { // Branch <
+                    if (static_cast<std::int32_t>(rs1) < static_cast<std::int32_t>(rs2)) {
+                        pc_next = pc + imm;
+                        std::cout << "Cpu::execute_instruction: Branch < | if (rs1: " << static_cast<std::int32_t>(rs1) << " < rs2: " << static_cast<std::int32_t>(rs2) << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: Branch < | rs1: " << static_cast<std::int32_t>(rs1) << " >= rs2: " << static_cast<std::int32_t>(rs2) << " PC += 0\n";
+                    break;
+                }
+                case 0x5: { // Branch >=
+                    if (static_cast<std::int32_t>(rs1) >= static_cast<std::int32_t>(rs2)) {
+                        pc_next = pc + imm;
+                        std::cout << "Cpu::execute_instruction: Branch >= | if (rs1: " << static_cast<std::int32_t>(rs1) << " >= rs2: " << static_cast<std::int32_t>(rs2) << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: Branch >= | rs1: " << static_cast<std::int32_t>(rs1) << " < rs2: " << static_cast<std::int32_t>(rs2) << " PC += 0\n";
+                    break;
+                }
+                case 0x6: { // Branch < (U)
+                    if (rs1 < rs2) {
+                        pc_next = pc + imm;
+                        std::cout << "Cpu::execute_instruction: Branch < (U) | if (rs1: " << rs1 << " < rs2: " << rs2 << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: Branch >= (U) | rs1: " << rs1 << " >= rs2: " << rs2 << " PC += 0\n";
+                    break;
+                }
+                case 0x7: { // Branch >= (U)
+                    if (rs1 >= rs2) {
+                        pc_next = pc + imm;
+                        std::cout << "Cpu::execute_instruction: Branch >= (U) | if (rs1: " << rs1 << " >= rs2: " << rs2 << ") PC += imm: " << imm << "\n";
+                        break;
+                    }
+                    std::cout << "Cpu::execute_instruction: Branch >= (U) | rs1: " << rs1 << " < rs2: " << rs2 << " PC += 0\n";
                     break;
                 }
             }
