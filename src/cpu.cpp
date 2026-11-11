@@ -13,8 +13,9 @@ Cpu::Cpu(const std::string& bin_path)
 
 void Cpu::step()
 {
-    if (halted) {
-        std::cout << "Cpu::step(): Cpu Halted\n";
+    if (memory.return_instruction_count() <= cycles) {
+        halted = true;
+        return;
     }
 
     std::uint32_t instruction = fetch_instruction();
@@ -32,9 +33,10 @@ void Cpu::step()
 
 void Cpu::run() 
 {
-    while (!halted && cycles < memory.return_instruction_count()) {
+    while (!halted) {
         step();
     }
+    std::cout << "Cpu::step(): Cpu Halted\n";
 }
 
 std::uint32_t Cpu::fetch_instruction()
