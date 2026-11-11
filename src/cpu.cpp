@@ -96,7 +96,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
         }
         case 0b1101111: { // J-type
             std::int32_t imm = static_cast<std::int32_t>(((instruction & 0x80000000) >> 11) | ((instruction & 0x7FE00000) >> 20) | ((instruction & 0x100000) >> 9) | (instruction & 0xFF000));
-            instr.immediate = imm;
+            instr.immediate = sign_extend_20_bit_immediate(imm);
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0xF80) >> 7);
             instr.opcode = opcode;
             //instr.print_instruction_members();
@@ -105,7 +105,7 @@ Instruction Cpu::decode_instruction(const std::uint32_t instruction)
         }
         case 0b0110111: case 0b0010111: {// U-type
             std::int32_t imm = static_cast<std::int32_t>((instruction & 0xFFFFF000));
-            instr.immediate = sign_extend_20_bit_immediate(imm);
+            instr.immediate = imm;
             instr.destination_register = static_cast<std::uint8_t>((instruction & 0xF80) >> 7);
             instr.opcode = opcode;
             //instr.print_instruction_members();
@@ -371,11 +371,18 @@ void Cpu::execute_instruction(const Instruction& instruction)
             }
             break;
         }
-        case 0b1101111: {
-            rd = pc + 4;
+        case 0b1101111: { // Jump and Link
+            rd = pc + 4; 
             rf.register_write(rd_a, rd);
             pc_next = pc + imm;
-            std::cout << "Cpu::execute_instruction: rd: " << rd << " = pc: " << pc << " + 4; pc: " << pc << "+= imm: " << imm << '\n';
+            std::cout << "Cpu::execute_instruction: Jump and Link | rd: " << rd << " = pc: " << pc << " + 4; pc: " << pc << "+= imm: " << imm << '\n';
+            break;
+        }
+        case 0b1100111: { // Jump and Link Reg
+            rd = pc + 4;
+            rf.register_write(rd_a, rd);
+            pc_next = (rs1 + imm) & ~0x1;
+            std::cout << "Cpu::execute_instruction: Jump and Link Reg | rd: " << rd << " = pc: " << pc << " + 4; pc: " << pc << " = rs1: " << rs1 <<  " + imm: " << imm << '\n';
             break;
         }
         default: {
