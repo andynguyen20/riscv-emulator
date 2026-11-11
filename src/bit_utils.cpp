@@ -2,7 +2,7 @@
 #include <iostream>
 #include <format>
 
-std::int32_t sign_extend_11_bit_immediate(std::int32_t immediate)
+std::uint32_t sign_extend_11_bit_immediate(std::int32_t immediate)
 {
     //std::cout << "sign_extend_11_bit_immediate\n";
     //std::cout << std::format("Before Sign extension: {:032b}\n", immediate);
@@ -18,7 +18,7 @@ std::int32_t sign_extend_11_bit_immediate(std::int32_t immediate)
     return immediate;
 }
 
-std::int32_t sign_extend_12_bit_immediate(std::int32_t immediate)
+std::uint32_t sign_extend_12_bit_immediate(std::int32_t immediate)
 {
     //std::cout << "sign_extend_12_bit_immediate\n";
     //std::cout << std::format("Before Sign extension: {:032b}\n", immediate);
@@ -34,7 +34,7 @@ std::int32_t sign_extend_12_bit_immediate(std::int32_t immediate)
     return immediate;
 }
 
-std::int32_t sign_extend_20_bit_immediate(std::int32_t immediate)
+std::uint32_t sign_extend_20_bit_immediate(std::int32_t immediate)
 {
     //std::cout << "sign_extend_20_bit_immediate\n";
     //std::cout << std::format("Before Sign extension: {:032b}\n", immediate);
