@@ -259,10 +259,34 @@ void Cpu::execute_instruction(const Instruction& instruction)
         }
         case 0b0000011: {
             switch (instruction.funct_3) {
-                case 0x2: {
+                case 0x0: { // Load Byte
+                    rd = static_cast<std::uint32_t>(static_cast<std::int8_t>(memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFF));
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Load Byte | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:7]\n";
+                    break;
+                }
+                case 0x1: { // Load Half
+                    rd = static_cast<std::uint32_t>(static_cast<std::int16_t>(memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFFFF));
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Load Half | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:15]\n";
+                    break;
+                }
+                case 0x2: { // Load Word
                     rd = memory.data_read(MemoryMap::DATA_START + rs1 + imm);
                     rf.register_write(rd_a, rd);
-                    std::cout << "Cpu::execute_instruction: rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:31]\n";
+                    std::cout << "Cpu::execute_instruction: Load Word | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:31]\n";
+                    break;
+                }
+                case 0x4: { // Load Byte (U)
+                    rd = (memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFF);
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Load Byte (U) | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:7]\n";
+                    break;
+                }
+                case 0x5: { // Load Half (U)
+                    rd = (memory.data_read(MemoryMap::DATA_START + rs1 + imm) & 0xFFFF);
+                    rf.register_write(rd_a, rd);
+                    std::cout << "Cpu::execute_instruction: Load Half | rd: " << rd << " = M[rs1: " << rs1 << " + imm: " << imm << "][0:15]\n";
                     break;
                 }
             }
