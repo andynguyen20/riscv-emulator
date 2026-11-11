@@ -53,14 +53,30 @@ std::uint32_t Memory::data_read(std::uint32_t index)
 
 void Memory::data_write(std::uint32_t index, std::uint32_t data)
 {
-    std::uint8_t byte_0 = static_cast<uint8_t>(data & 0xFF);
-    std::uint8_t byte_1 = static_cast<uint8_t>((data & 0xFF00) >> 8);
-    std::uint8_t byte_2 = static_cast<uint8_t>((data & 0xFF0000) >> 16);
-    std::uint8_t byte_3 = static_cast<uint8_t>((data & 0xFF000000) >> 24);
+    std::uint8_t byte_0 = static_cast<std::uint8_t>(data & 0xFF);
+    std::uint8_t byte_1 = static_cast<std::uint8_t>((data & 0xFF00) >> 8);
+    std::uint8_t byte_2 = static_cast<std::uint8_t>((data & 0xFF0000) >> 16);
+    std::uint8_t byte_3 = static_cast<std::uint8_t>((data & 0xFF000000) >> 24);
     RAM[MemoryMap::DATA_START + index] = byte_0;
     RAM[MemoryMap::DATA_START + index + 1] = byte_1;
     RAM[MemoryMap::DATA_START + index + 2] = byte_2;
     RAM[MemoryMap::DATA_START + index + 3] = byte_3;
+}
+
+
+void Memory::data_write_byte(std::uint32_t index, std::uint8_t data)
+{
+    RAM[MemoryMap::DATA_START + index] = data;
+}
+
+
+
+void Memory::data_write_half(std::uint32_t index, std::uint16_t data)
+{
+    std::uint8_t byte_0 = static_cast<std::uint8_t>(data & 0xFF);
+    std::uint8_t byte_1 = static_cast<std::uint8_t>((data & 0xFF00) >> 8);
+    RAM[MemoryMap::DATA_START + index] = byte_0;
+    RAM[MemoryMap::DATA_START + index + 1] = byte_1;
 }
 
 std::uint64_t Memory::return_instruction_count()

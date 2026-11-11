@@ -294,9 +294,19 @@ void Cpu::execute_instruction(const Instruction& instruction)
         }
         case 0b0100011: {
             switch (instruction.funct_3) {
-                case 0x2: {
+                case 0x0: { // Store Byte
+                    memory.data_write_byte(rs1 + imm, static_cast<std::uint8_t>(rs2 &0xFF));
+                    std::cout << "Cpu::execute_instruction: Store Byte | M[rs1: " << rs1 << " + imm: " << imm << "[0:7] = rs2: " << rs2 << "[0:7]\n";
+                    break;
+                }
+                case 0x1: { // Store Half
+                    memory.data_write_half(rs1 + imm, static_cast<std::uint16_t>(rs2 &0xFFFF));
+                    std::cout << "Cpu::execute_instruction: Store Half | M[rs1: " << rs1 << " + imm: " << imm << "[0:15] = rs2: " << rs2 << "[0:15]\n";
+                    break;
+                }
+                case 0x2: { // Store Word
                     memory.data_write(rs1 + imm, rs2);
-                    std::cout << "Cpu::execute_instruction: M[rs1: " << rs1 << " + imm: " << imm << "[0:31] = rs2: " << rs2 << "[0:31]\n";
+                    std::cout << "Cpu::execute_instruction: Store Word | M[rs1: " << rs1 << " + imm: " << imm << "[0:31] = rs2: " << rs2 << "[0:31]\n";
                     break;
                 }
             }

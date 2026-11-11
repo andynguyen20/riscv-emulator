@@ -25,6 +25,8 @@ public:
     void print_instruction_memory();
     std::uint32_t data_read(std::uint32_t index);
     void data_write(std::uint32_t index, std::uint32_t data);
+    void data_write_byte(std::uint32_t index, std::uint8_t data);
+    void data_write_half(std::uint32_t index, std::uint16_t data);
     std::uint64_t return_instruction_count();
 };
 
